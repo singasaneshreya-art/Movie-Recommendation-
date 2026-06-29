@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NexMovie — AI Recommendation Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/static/css/style.css"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-icon">🎬</span>
+      <span class="logo-text">NexMovie</span>
+      <span class="logo-tag">AI Recommendations</span>
+    </div>
+    <nav class="nav">
+      <button class="nav-btn active" data-tab="discover">Discover</button>
+      <button class="nav-btn" data-tab="rate">Rate & Get Picks</button>
+      <button class="nav-btn" data-tab="genre">By Genre</button>
+      <button class="nav-btn" data-tab="about">How It Works</button>
+    </nav>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search movies…"/>
+      <div class="search-results" id="searchResults"></div>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow">Powered by Machine Learning</p>
+    <h1 class="hero-title">Find your next<br/><em>favourite film</em></h1>
+    <p class="hero-sub">Content-based filtering · Collaborative filtering · Hybrid recommendations</p>
+    <div class="hero-stats">
+      <div class="stat"><span class="stat-num" id="statMovies">30</span><span class="stat-label">Movies</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num">3</span><span class="stat-label">Algorithms</span></div>
+      <div class="stat-div"></div>
+      <div class="stat"><span class="stat-num">8</span><span class="stat-label">Genres</span></div>
+    </div>
+  </div>
+  <div class="hero-reel" id="heroReel"></div>
+</section>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ── DISCOVER TAB ── -->
+  <section class="tab-panel active" id="tab-discover">
+    <div class="section-header">
+      <h2 class="section-title">Top Rated Movies</h2>
+      <p class="section-sub">Click any movie to get AI-powered recommendations</p>
+    </div>
+    <div class="movie-grid" id="topRatedGrid"></div>
+
+    <!-- RECOMMENDATION RESULTS -->
+    <div class="rec-panel" id="recPanel" style="display:none">
+      <div class="rec-header">
+        <div>
+          <p class="rec-eyebrow" id="recMethod">Content-Based Filtering</p>
+          <h3 class="rec-title">Because you liked <em id="recBasedOn">—</em></h3>
+          <p class="rec-technique" id="recTechnique"></p>
+        </div>
+        <button class="close-btn" onclick="closeRecPanel()">✕</button>
+      </div>
+      <div class="movie-grid" id="recGrid"></div>
+    </div>
+  </section>
+
+  <!-- ── RATE TAB ── -->
+  <section class="tab-panel" id="tab-rate">
+    <div class="section-header">
+      <h2 class="section-title">Rate Movies, Get Picks</h2>
+      <p class="section-sub">Collaborative filtering — we find users like you and recommend what they loved</p>
+    </div>
+    <div class="rate-layout">
+      <div class="rate-list" id="rateList"></div>
+      <div class="rate-sidebar">
+        <div class="sidebar-card">
+          <h4 class="sidebar-title">Your Ratings</h4>
+          <div id="ratingsSummary" class="ratings-summary">
+            <p class="empty-msg">Start rating movies →</p>
+          </div>
+          <button class="primary-btn" id="getRecsBtn" onclick="getCollabRecs()" disabled>
+            Get Recommendations
+          </button>
+          <button class="ghost-btn" onclick="clearRatings()">Clear All</button>
+        </div>
+        <div class="sidebar-card method-card">
+          <h4 class="sidebar-title">Algorithm</h4>
+          <p class="method-name">Collaborative Filtering</p>
+          <p class="method-desc">Finds users with similar rating patterns via cosine similarity, then recommends movies they rated highly that you haven't seen.</p>
+        </div>
+      </div>
+    </div>
+    <div class="rec-panel" id="collabRecPanel" style="display:none">
+      <div class="rec-header">
+        <div>
+          <p class="rec-eyebrow">Collaborative Filtering</p>
+          <h3 class="rec-title">Recommended for <em>you</em></h3>
+          <p class="rec-technique">User-Based Cosine Similarity on rating patterns</p>
+        </div>
+        <button class="close-btn" onclick="document.getElementById('collabRecPanel').style.display='none'">✕</button>
+      </div>
+      <div class="movie-grid" id="collabRecGrid"></div>
+    </div>
+  </section>
+
+  <!-- ── GENRE TAB ── -->
+  <section class="tab-panel" id="tab-genre">
+    <div class="section-header">
+      <h2 class="section-title">Browse by Genre</h2>
+      <p class="section-sub">Pick your favourite genres and let the algorithm do the rest</p>
+    </div>
+    <div class="genre-selector" id="genreSelector"></div>
+    <div class="genre-actions">
+      <button class="primary-btn" onclick="getGenreRecs()">Find Movies</button>
+      <button class="ghost-btn" onclick="clearGenres()">Clear</button>
+    </div>
+    <div class="rec-panel" id="genreRecPanel" style="display:none">
+      <div class="rec-header">
+        <div>
+          <p class="rec-eyebrow">Genre-Based Filtering</p>
+          <h3 class="rec-title">Movies matching your <em>taste</em></h3>
+          <p class="rec-technique">Genre overlap scoring + IMDB rating weighting</p>
+        </div>
+        <button class="close-btn" onclick="document.getElementById('genreRecPanel').style.display='none'">✕</button>
+      </div>
+      <div class="movie-grid" id="genreRecGrid"></div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT TAB ── -->
+  <section class="tab-panel" id="tab-about">
+    <div class="section-header">
+      <h2 class="section-title">How It Works</h2>
+      <p class="section-sub">Three recommendation algorithms powering NexMovie</p>
+    </div>
+    <div class="algo-grid">
+      <div class="algo-card">
+        <div class="algo-icon">📐</div>
+        <h3 class="algo-title">Content-Based Filtering</h3>
+        <p class="algo-sub">TF-IDF + Cosine Similarity</p>
+        <p class="algo-desc">Builds a feature vector for each movie using genres (3× weight), director (2× weight), cast, description, and decade. Computes cosine similarity between vectors to find structurally similar films.</p>
+        <div class="algo-steps">
+          <div class="algo-step"><span class="step-n">1</span><span>Extract text features per movie</span></div>
+          <div class="algo-step"><span class="step-n">2</span><span>TF-IDF vectorize all features</span></div>
+          <div class="algo-step"><span class="step-n">3</span><span>Cosine similarity against target</span></div>
+          <div class="algo-step"><span class="step-n">4</span><span>Rank by similarity score</span></div>
+        </div>
+      </div>
+      <div class="algo-card">
+        <div class="algo-icon">👥</div>
+        <h3 class="algo-title">Collaborative Filtering</h3>
+        <p class="algo-sub">User-Based Cosine Similarity</p>
+        <p class="algo-desc">Builds a user-movie rating matrix. When you rate movies, your rating vector is compared to existing users via cosine similarity. Movies highly rated by similar users are weighted and recommended.</p>
+        <div class="algo-steps">
+          <div class="algo-step"><span class="step-n">1</span><span>Build user × movie rating matrix</span></div>
+          <div class="algo-step"><span class="step-n">2</span><span>Compare your ratings to all users</span></div>
+          <div class="algo-step"><span class="step-n">3</span><span>Weighted average of similar users</span></div>
+          <div class="algo-step"><span class="step-n">4</span><span>Recommend unseen high-score films</span></div>
+        </div>
+      </div>
+      <div class="algo-card">
+        <div class="algo-icon">🔀</div>
+        <h3 class="algo-title">Hybrid Recommendation</h3>
+        <p class="algo-sub">Content (60%) + Collaborative (40%)</p>
+        <p class="algo-desc">Blends both approaches for better accuracy. Content-based scores weighted at 60% ensure genre/style alignment, while collaborative scores at 40% ensure social proof from users with similar taste.</p>
+        <div class="algo-steps">
+          <div class="algo-step"><span class="step-n">1</span><span>Run content-based (top 12)</span></div>
+          <div class="algo-step"><span class="step-n">2</span><span>Run collaborative (top 12)</span></div>
+          <div class="algo-step"><span class="step-n">3</span><span>Blend: 0.6 × CB + 0.4 × CF</span></div>
+          <div class="algo-step"><span class="step-n">4</span><span>Re-rank by blended score</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-visual">
+      <h3 class="pipeline-title">Recommendation Pipeline</h3>
+      <div class="pipeline-steps">
+        <div class="pipe-step"><div class="pipe-icon">🎬</div><div class="pipe-label">Movie / Ratings Input</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">📊</div><div class="pipe-label">Feature Extraction</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">🧮</div><div class="pipe-label">TF-IDF Vectorization</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">📐</div><div class="pipe-label">Cosine Similarity</div></div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step"><div class="pipe-icon">🏆</div><div class="pipe-label">Ranked Results</div></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- MOVIE DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+</div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
