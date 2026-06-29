@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>NexMovie — AI Recommendation Engine</title>
+<title>NexMovie — Recommendation Engine</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/static/css/style.css"/>
@@ -16,13 +16,11 @@
     <div class="logo">
       <span class="logo-icon">🎬</span>
       <span class="logo-text">NexMovie</span>
-      <span class="logo-tag">AI Recommendations</span>
     </div>
     <nav class="nav">
       <button class="nav-btn active" data-tab="discover">Discover</button>
       <button class="nav-btn" data-tab="rate">Rate & Get Picks</button>
       <button class="nav-btn" data-tab="genre">By Genre</button>
-      <button class="nav-btn" data-tab="about">How It Works</button>
     </nav>
     <div class="search-wrap">
       <input type="text" id="searchInput" class="search-input" placeholder="Search movies…"/>
@@ -37,13 +35,7 @@
     <p class="hero-eyebrow">Powered by Machine Learning</p>
     <h1 class="hero-title">Find your next<br/><em>favourite film</em></h1>
     <p class="hero-sub">Content-based filtering · Collaborative filtering · Hybrid recommendations</p>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-num" id="statMovies">30</span><span class="stat-label">Movies</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span class="stat-num">3</span><span class="stat-label">Algorithms</span></div>
-      <div class="stat-div"></div>
-      <div class="stat"><span class="stat-num">8</span><span class="stat-label">Genres</span></div>
-    </div>
+
   </div>
   <div class="hero-reel" id="heroReel"></div>
 </section>
@@ -55,7 +47,7 @@
   <section class="tab-panel active" id="tab-discover">
     <div class="section-header">
       <h2 class="section-title">Top Rated Movies</h2>
-      <p class="section-sub">Click any movie to get AI-powered recommendations</p>
+      <p class="section-sub">Click any movie to get recommendations</p>
     </div>
     <div class="movie-grid" id="topRatedGrid"></div>
 
@@ -136,66 +128,7 @@
     </div>
   </section>
 
-  <!-- ── ABOUT TAB ── -->
-  <section class="tab-panel" id="tab-about">
-    <div class="section-header">
-      <h2 class="section-title">How It Works</h2>
-      <p class="section-sub">Three recommendation algorithms powering NexMovie</p>
-    </div>
-    <div class="algo-grid">
-      <div class="algo-card">
-        <div class="algo-icon">📐</div>
-        <h3 class="algo-title">Content-Based Filtering</h3>
-        <p class="algo-sub">TF-IDF + Cosine Similarity</p>
-        <p class="algo-desc">Builds a feature vector for each movie using genres (3× weight), director (2× weight), cast, description, and decade. Computes cosine similarity between vectors to find structurally similar films.</p>
-        <div class="algo-steps">
-          <div class="algo-step"><span class="step-n">1</span><span>Extract text features per movie</span></div>
-          <div class="algo-step"><span class="step-n">2</span><span>TF-IDF vectorize all features</span></div>
-          <div class="algo-step"><span class="step-n">3</span><span>Cosine similarity against target</span></div>
-          <div class="algo-step"><span class="step-n">4</span><span>Rank by similarity score</span></div>
-        </div>
-      </div>
-      <div class="algo-card">
-        <div class="algo-icon">👥</div>
-        <h3 class="algo-title">Collaborative Filtering</h3>
-        <p class="algo-sub">User-Based Cosine Similarity</p>
-        <p class="algo-desc">Builds a user-movie rating matrix. When you rate movies, your rating vector is compared to existing users via cosine similarity. Movies highly rated by similar users are weighted and recommended.</p>
-        <div class="algo-steps">
-          <div class="algo-step"><span class="step-n">1</span><span>Build user × movie rating matrix</span></div>
-          <div class="algo-step"><span class="step-n">2</span><span>Compare your ratings to all users</span></div>
-          <div class="algo-step"><span class="step-n">3</span><span>Weighted average of similar users</span></div>
-          <div class="algo-step"><span class="step-n">4</span><span>Recommend unseen high-score films</span></div>
-        </div>
-      </div>
-      <div class="algo-card">
-        <div class="algo-icon">🔀</div>
-        <h3 class="algo-title">Hybrid Recommendation</h3>
-        <p class="algo-sub">Content (60%) + Collaborative (40%)</p>
-        <p class="algo-desc">Blends both approaches for better accuracy. Content-based scores weighted at 60% ensure genre/style alignment, while collaborative scores at 40% ensure social proof from users with similar taste.</p>
-        <div class="algo-steps">
-          <div class="algo-step"><span class="step-n">1</span><span>Run content-based (top 12)</span></div>
-          <div class="algo-step"><span class="step-n">2</span><span>Run collaborative (top 12)</span></div>
-          <div class="algo-step"><span class="step-n">3</span><span>Blend: 0.6 × CB + 0.4 × CF</span></div>
-          <div class="algo-step"><span class="step-n">4</span><span>Re-rank by blended score</span></div>
-        </div>
-      </div>
-    </div>
 
-    <div class="pipeline-visual">
-      <h3 class="pipeline-title">Recommendation Pipeline</h3>
-      <div class="pipeline-steps">
-        <div class="pipe-step"><div class="pipe-icon">🎬</div><div class="pipe-label">Movie / Ratings Input</div></div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step"><div class="pipe-icon">📊</div><div class="pipe-label">Feature Extraction</div></div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step"><div class="pipe-icon">🧮</div><div class="pipe-label">TF-IDF Vectorization</div></div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step"><div class="pipe-icon">📐</div><div class="pipe-label">Cosine Similarity</div></div>
-        <div class="pipe-arrow">→</div>
-        <div class="pipe-step"><div class="pipe-icon">🏆</div><div class="pipe-label">Ranked Results</div></div>
-      </div>
-    </div>
-  </section>
 
 </main>
 

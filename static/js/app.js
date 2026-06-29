@@ -21,7 +21,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadMovies() {
   const res = await fetch("/api/movies");
   state.movies = await res.json();
-  document.getElementById("statMovies").textContent = state.movies.length;
 }
 
 // ── NAV ────────────────────────────────────────────────────────
@@ -44,7 +43,7 @@ function renderHeroReel() {
     const m = state.movies.find(x => x.id === id);
     if (!m) return;
     const card = el("div", "reel-card", `
-      <div class="reel-poster">${m.poster}</div>
+      <div class="reel-poster">${renderPoster(m.poster, 'reel-poster')}</div>
       <div class="reel-title">${m.title}</div>
     `);
     reel.appendChild(card);
@@ -71,7 +70,7 @@ function movieCard(m, onClick, showScore = false) {
   card.className = "movie-card";
   card.innerHTML = `
     <div class="card-poster">
-      ${m.poster}
+      ${renderPoster(m.poster, 'card-poster')}
       <div class="card-rating">⭐ ${m.rating}</div>
       ${showScore && m.score ? `<div class="card-score">${m.score}%</div>` : ""}
     </div>
@@ -123,7 +122,7 @@ function renderRateList() {
   list.innerHTML = "";
   state.movies.forEach(m => {
     const item = el("div", "rate-item", `
-      <div class="rate-poster">${m.poster}</div>
+      <div class="rate-poster">${renderPoster(m.poster, 'rate-poster')}</div>
       <div class="rate-info">
         <div class="rate-title">${m.title}</div>
         <div class="rate-meta">${m.year} · ${m.genres?.slice(0,2).join(", ")}</div>
@@ -161,7 +160,7 @@ function updateRatingsSummary() {
   box.innerHTML = entries.map(([id, r]) => {
     const m = state.movies.find(x => x.id === parseInt(id));
     return `<div class="rating-item">
-      <span>${m?.poster} ${m?.title || "Movie"}</span>
+      <span class="summary-info">${renderPoster(m?.poster, 'summary-poster')} <span class="summary-title">${m?.title || "Movie"}</span></span>
       <span class="rating-stars">${"★".repeat(Math.round(r / 2))}</span>
     </div>`;
   }).join("");
@@ -253,7 +252,7 @@ function setupSearch() {
       if (!data.length) { results.classList.remove("open"); return; }
       data.forEach(m => {
         const item = el("div", "search-result-item", `
-          <span class="sri-poster">${m.poster}</span>
+          <span class="sri-poster">${renderPoster(m.poster, 'sri-poster')}</span>
           <div>
             <div class="sri-title">${m.title}</div>
             <div class="sri-meta">${m.year} · ${m.genres?.slice(0,2).join(", ")}</div>
@@ -286,18 +285,22 @@ async function openModal(movieId) {
   const m   = await res.json();
 
   content.innerHTML = `
-    <div class="modal-poster">${m.poster}</div>
-    <div class="modal-body">
-      <div class="modal-rating">⭐ ${m.rating} / 10</div>
-      <h2 class="modal-title">${m.title}</h2>
-      <div class="modal-year-dir">${m.year} · Directed by ${m.director}</div>
-      <div class="modal-genres">${m.genres.map(g => `<span class="modal-genre-chip">${g}</span>`).join("")}</div>
-      <p class="modal-desc">${m.description}</p>
-      <p class="modal-cast"><strong>Cast:</strong> ${m.cast.join(", ")}</p>
-      <div class="modal-actions">
-        <button class="primary-btn" onclick="closeModal(); getContentRecs(${JSON.stringify(m).replace(/"/g,'&quot;')})">
-          Find Similar Movies
-        </button>
+    <div class="modal-split">
+      <div class="modal-left">
+        <div class="modal-poster">${renderPoster(m.poster, 'modal-poster')}</div>
+      </div>
+      <div class="modal-right">
+        <div class="modal-rating">⭐ ${m.rating} / 10</div>
+        <h2 class="modal-title">${m.title}</h2>
+        <div class="modal-year-dir">${m.year} · Directed by ${m.director}</div>
+        <div class="modal-genres">${m.genres.map(g => `<span class="modal-genre-chip">${g}</span>`).join("")}</div>
+        <p class="modal-desc">${m.description}</p>
+        <p class="modal-cast"><strong>Cast:</strong> ${m.cast.join(", ")}</p>
+        <div class="modal-actions">
+          <button class="primary-btn" onclick="closeModal(); getContentRecs(${JSON.stringify(m).replace(/"/g,'&quot;')})">
+            Find Similar Movies
+          </button>
+        </div>
       </div>
     </div>
   `;
@@ -325,4 +328,11 @@ function showToast(msg) {
   const t = el("div", "toast", msg);
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2400);
+}
+
+function renderPoster(poster, className) {
+  if (poster && (poster.startsWith("http") || poster.includes("/"))) {
+    return `<img src="${poster}" class="${className}-img" alt="poster" />`;
+  }
+  return poster || "🎬";
 }
